@@ -98,7 +98,7 @@ public class WeatherFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnfileActionPerformed
+    private void btnfileActionPerformed(java.awt.event.ActionEvent evt) {
     FileDialog fileDialog = new FileDialog(this, "Seleccionar Archivo", FileDialog.LOAD);
     fileDialog.setVisible(true);
 
@@ -106,36 +106,40 @@ public class WeatherFrame extends javax.swing.JFrame {
     String filename = fileDialog.getFile();
 
     if (filename != null) {
-    File selectedFile = new File(directory, filename);
-    try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
-    StringBuilder content = new StringBuilder();
-    String line;
-    while ((line = reader.readLine()) != null) {
-    content.append(line).append("\n");
-    }
-    String contenido = content.toString();
-    
-    Weather w = Weather.deserialize(contenido);
-    
-    lblTemperature.setText(w.getCity());
-    lblTemperature.setText(w.getTemperature() + "°C");
+        File selectedFile = new File(directory, filename);
+        try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+            StringBuilder content = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+            String contenido = content.toString();
             
-    DefaultTableModel  model = (DefaultTableModel) tblForecast.getModel() ;
-    model.setRowCount(0);
-    
-    SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/yyyy");
-    for(Forecast f: w.getForecast()){model.addRow(new Object[] {
-        dateformat.format(f.getDay()),
-        f.getMinTemperature(),
-        f.getMaxTemperature()
-        
-    });
+            Weather w = Weather.deserialize(contenido);
+            
+            lblCity1.setText(w.getCity());
+            lblTemperature.setText(w.getTemperature() + "°C");
+                    
+            DefaultTableModel model = (DefaultTableModel) tblForecast.getModel();
+            model.setRowCount(0);
+            
+            // Verificar si la lista de pronósticos no es nula antes de iterarla
+            if (w.getForecast() != null) {
+                SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/yyyy");
+                for (Forecast f : w.getForecast()) {
+                    model.addRow(new Object[] {
+                        dateformat.format(f.getDay()),
+                        f.getMinTemperature(),
+                        f.getMaxTemperature()
+                    });
+                }
+            }
+            
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
-    
-    } catch (IOException ex) {
-    ex.printStackTrace();
-    }
-    }    }//GEN-LAST:event_btnfileActionPerformed
+}
       
     /**
      * @param args the command line arguments
